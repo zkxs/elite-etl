@@ -1,0 +1,22 @@
+# IntelliJ stuff
+.idea/
+*.iml
+
+# Eclipse stuff
+.settings/
+.classpath
+.project
+
+# SBT stuff
+target/
+
+# Secret config files
+/config.properties
+
+# temporary files
+/systems_populated.json
+/stations.json
+/factions.json
+
+# logs
+*.log
