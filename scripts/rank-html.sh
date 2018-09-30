@@ -47,9 +47,7 @@ echo -n '<!DOCTYPE html>
 					Finds pairs of systems that are suitable for major power rank grinding.
 				</p>
 				<p>
-					This page should update once a day...<br>
-					Except it doesn'"'"'t yet, because I haven'"'"'t set up the part that downloads
-					the new data from EDDB yet.
+					This page automatically updates once a day.
 				</p>
 				<h3>Columns</h3>
 				<p>
@@ -60,6 +58,7 @@ echo -n '<!DOCTYPE html>
 					<li>system_name: name of the system</li> <!-- duh -->
 					<li>faction: major power aligned factions / total faction</li>
 					<li>stations: number of stations in the system</li>
+					<li>any_large: does this system have any stations with large landing pads?</li>
 					<li>ls: light seconds to most distant station</li>
 					<li>distance: distance between A and B systems</li>
 				</ul>
@@ -83,11 +82,28 @@ cat ../doc/elite-rank-grind-query.sql |\
 	sed 's/&nbsp;//g' |\
 	sed 's/^/\t\t\t\t/' >> rank-grind.html
 
-echo -n '			</main>
+DATE="$(date -u +%Y-%m-%dT%I:%M:%SZ)"
+
+echo -n '				<h3>What systems are considered?</h3>
+				<p>Only systems that meet the following critera make it in to the results:</p>
+				<ul>
+					<li>
+						Systems A and B must be within 10 ly of each other.
+						10 ly is significant because it is the max distance data delivery missions will send you.
+					</li>
+					<li>
+						No other system with dockable stations can be with 10 ly of A or B.
+						This prevents delivery missions from sending you away from A or B.
+					</li>
+					<li>Systems must be in Boom state. Boom systems generate lots of data delivery missions.</li>
+					<li>Systems must have at least one major power aligned faction.</li>
+					<li>Systems must not have planetary outposts. (Ain'"'"'t nobody got time for that!)</li>
+				</ul>
+			</main>
 			<footer>
 				<div class="line">
 					<span>
-						Last updated at '"$(date -u +%Y-%m-%dT%I:%M:%SZ)"'
+						Last updated at '"$DATE"'
 					</span>
 					<span class="divider"></span>
 					<address class="validateLink" style="display: inline;">
@@ -101,6 +117,8 @@ echo -n '			</main>
 	</body>
 </html>
 ' >> rank-grind.html
+
+echo "updated at $DATE"
 
 # move the output into the apache directory
 chgrp www-data rank-grind.html
