@@ -1,8 +1,5 @@
 # Elite ETL
-An extract/transform/load application that takes data from the [EDDB API] and loads it into a [PostgreSQL] database.
-
-This allows you to run queries on the EDDN data that EDDB does not support.
-
+An extract/transform/load application that takes data from the [EDDB API] and loads it into a [PostgreSQL] database. This allows you to run custom queries on the data. Elite ETL is cache-aware, and will not download new data from EDDB until the cached data expires.
 
 ## Setup
 1. Install [PostgreSQL].
@@ -20,7 +17,6 @@ This allows you to run queries on the EDDN data that EDDB does not support.
      &sslfactory=org.postgresql.ssl.NonValidatingFactory\
      &sslhostnameverifier=net.michaelripley.elite_etl.db.AllowAllHostnameVerifier
    ```
-5. Download `systems_populated.json`, `stations.json`, and `factions.json` from the [EDDB API] and place them in the root directory of this project.
 
 
 ## Building and Running
@@ -40,10 +36,6 @@ wrote 118674 faction presences
 wrote 82430 station economies
 finished in 21.757s
 ```
-
-## Planned features
-- Automatically download EDDB json files, and keep them until new ones are available. (They refresh once a day).
-
 
 ## Example queries
 - [Empire/Federation rank grind locations][rank grind query]

@@ -17,6 +17,7 @@ target/
 /systems_populated.json
 /stations.json
 /factions.json
+/etags.properties
 
 # logs
 *.log
