@@ -83,7 +83,7 @@ and bad_stations = 0;
 insert into red_herrings
 select system_id, coordinates from system
 where (
-    select bool_and(has_docking) from station
+    select bool_or(has_docking) from station
     where system.system_id = station.system_id
 );
 
