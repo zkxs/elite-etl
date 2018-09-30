@@ -1,9 +1,30 @@
 #!/bin/bash
 
+findjar() {
+	JARFILE="$(ls -1 target/scala-2.12/elite-etl-assembly-*.jar 2>/dev/null | sort -V | tail -n1)"
+}
+
 pushd . >/dev/null
-cd ..
-#sbt run
-popd >/dev/null
+
+cd "$(dirname "$(readlink -f "$0")")" # enter scripts directory
+
+pushd . >/dev/null
+cd .. # enter project root
+
+findjar
+if [ "$JARFILE" == "" ]; then
+	sbt clean assembly
+	findjar
+fi
+java -jar "$JARFILE"
+STATUS=$?
+popd >/dev/null # go back to scripts directory
+
+if [ $STATUS -ne 0 ]; then
+	echo "aborting script because elite-etl exited with status $STATUS"
+	popd >/dev/null # go back to original directory
+	exit 0
+fi
 
 export PGPASSWORD="$(cat ../config.properties | sed -n 's/.*&password=//p' | sed 's/\\ *$//')"
 
@@ -45,6 +66,7 @@ echo -n '<!DOCTYPE html>
 				<h2>Federation</h2>
 ' > rank-grind.html
 
+# Run federation query
 cat ../doc/elite-rank-grind-query.sql |\
 	psql --dbname=elite --username=elite --host=127.0.0.1 --port=5432 -H |\
 	grep -Ev '</?p>.*' |\
@@ -53,6 +75,7 @@ cat ../doc/elite-rank-grind-query.sql |\
 
 echo '				<h2>Empire</h2>' >> rank-grind.html
 
+# Run empire query
 cat ../doc/elite-rank-grind-query.sql |\
 	sed "s/'Federation'/'Empire'/" |\
 	psql --dbname=elite --username=elite --host=127.0.0.1 --port=5432 -H |\
@@ -83,3 +106,5 @@ echo -n '			</main>
 chgrp www-data rank-grind.html
 chmod 640 rank-grind.html
 mv rank-grind.html /var/www/
+
+popd >/dev/null # go back to original directory
