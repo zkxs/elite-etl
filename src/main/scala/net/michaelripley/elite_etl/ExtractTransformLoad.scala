@@ -59,5 +59,7 @@ object ExtractTransformLoad {
     val stopTime = System.nanoTime()
     val elapsedTime = (stopTime - startTime) / 1000000000d
     println(f"finished in $elapsedTime%.3fs")
+
+    sys.exit(exitCode)
   }
 }
