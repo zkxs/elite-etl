@@ -56,7 +56,7 @@ echo -n '<!DOCTYPE html>
 				</p>
 				<ul>
 					<li>system_name: name of the system</li> <!-- duh -->
-					<li>faction: major power aligned factions / total faction</li>
+					<li>faction: major power aligned factions in Boom state / total faction</li>
 					<li>stations: number of stations in the system</li>
 					<li>any_large: does this system have any stations with large landing pads?</li>
 					<li>ls: light seconds to most distant station</li>
@@ -95,7 +95,7 @@ echo -n '				<h3>What systems are considered?</h3>
 						No other system with dockable stations can be with 10 ly of A or B.
 						This prevents delivery missions from sending you away from A or B.
 					</li>
-					<li>Systems must be in Boom state. Boom systems generate lots of data delivery missions.</li>
+					<li>Systems must have major power aligned factions in Boom state. Boom factions generate lots of data delivery missions.</li>
 					<li>Systems must have at least one major power aligned faction.</li>
 					<li>Systems must not have planetary outposts. (Ain'"'"'t nobody got time for that!)</li>
 				</ul>
