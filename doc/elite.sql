@@ -147,6 +147,7 @@ CREATE TABLE public.faction
     faction_id integer NOT NULL,
     faction_name character varying(128) COLLATE pg_catalog."default",
     faction_allegiance major_power,
+    faction_state state,
     CONSTRAINT faction_pkey PRIMARY KEY (faction_id)
 )
 WITH (
@@ -159,6 +160,11 @@ ALTER TABLE public.faction
 CREATE INDEX faction_allegiance
     ON public.faction USING btree
     (faction_allegiance)
+    TABLESPACE pg_default;
+
+CREATE INDEX faction_state
+    ON public.faction USING btree
+    (faction_state)
     TABLESPACE pg_default;
 
 

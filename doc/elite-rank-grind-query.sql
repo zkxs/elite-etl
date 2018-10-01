@@ -44,6 +44,7 @@ from (
             left join faction on faction_presence.faction_id = faction.faction_id
             where faction_allegiance = 'Federation' -- 'Federation' or 'Empire'
             and system.system_id = faction_presence.system_id
+            and faction_state = 'Boom' -- are there other states that generate data delivery?
         ) as aligned_factions,
         (
             select count(*) from faction_presence
@@ -53,17 +54,13 @@ from (
             select count(*) from station
             where system.system_id = station.system_id
             and has_docking
-            and station_state = 'Boom' -- are there other states that generate data delivery?
             and not is_planetary
         ) as good_stations,
         (
             select count(*) from station
             where system.system_id = station.system_id
             and has_docking
-            and (
-                station_state != 'Boom'
-                or is_planetary
-            )
+            and is_planetary
         ) as bad_stations,
         (
             select bool_or(max_landing_pad_size = 'L') from station -- do we care how big the stations are?

@@ -25,8 +25,8 @@ private object DatabaseConnector {
 
   private val factionInsertQuery =
     """insert into faction
-      | (faction_id, faction_name, faction_allegiance)
-      | values (?, ?, ?::major_power);
+      | (faction_id, faction_name, faction_allegiance, faction_state)
+      | values (?, ?, ?::major_power, ?::state);
       |""".stripMargin
 
   private val factionPresenceInsertQuery =
@@ -126,6 +126,7 @@ class DatabaseConnector extends AutoCloseable {
         statement.setInt(1, faction.id)
         statement.setString(2, faction.name)
         statement.setString(3, allegiance)
+        statement.setString(4, faction.state.fold(null.asInstanceOf[String])(_.name))
       }
     )
     commitStatement.execute("commit;")
