@@ -21,7 +21,7 @@ object ExtractTransformLoad {
       factionSource
     )
 
-    val exitCode = if (false && allResources.forall(_.cached)) {
+    val exitCode = if (allResources.forall(_.cached)) {
       println("all resources are up to date; nothing to do.")
       // return a different status code so that shell scripts can detect that nothing was done
       304
