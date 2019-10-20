@@ -11,7 +11,7 @@ object ExtractTransformLoad {
 
     val objectMapper = JsonMapperFactory.getInstance
 
-    val systemSource  = EddbDownloader.systems.get()
+    val systemSource = EddbDownloader.systems.get()
     val stationSource = EddbDownloader.stations.get()
     val factionSource = EddbDownloader.factions.get()
 
@@ -42,14 +42,20 @@ object ExtractTransformLoad {
       println(s"wrote ${factions.length} factions to database")
 
       // faction/system mappings
-      val factionSystemMapping = systems
+      val factionSystemMapping: Array[(Int, Int)] = systems
+        .view
         .flatMap(system => system.factionPresences.map(faction => (system.id, faction.id)))
+        .toArray
+        .distinct
       db.writeFactionPresences(factionSystemMapping)
       println(s"wrote ${factionSystemMapping.length} faction presences to database")
 
       // station/economy mappings
       val stationEconomyMapping: Array[(Int, Economy)] = stations
+        .view
         .flatMap(station => station.economies.map(economy => (station.id, economy)))
+        .toArray
+        .distinct
       db.writeStationEconomies(stationEconomyMapping)
       println(s"wrote ${stationEconomyMapping.length} station economies to database")
 
