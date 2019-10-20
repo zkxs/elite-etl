@@ -57,7 +57,7 @@ class DatabaseConnector extends AutoCloseable {
   private val connection: Connection = DriverManager.getConnection(connectionUrl)
 
 
-  def writeSystems(systems: TraversableOnce[System]): Unit = {
+  def writeSystems(systems: IterableOnce[System]): Unit = {
     val beginStatement = connection.createStatement()
     val commitStatement = connection.createStatement()
     val truncateStatement = connection.createStatement()
@@ -77,7 +77,7 @@ class DatabaseConnector extends AutoCloseable {
     commitStatement.execute("commit;")
   }
 
-  def writeStations(stations: TraversableOnce[Station]): Unit = {
+  def writeStations(stations: IterableOnce[Station]): Unit = {
     val beginStatement = connection.createStatement()
     val commitStatement = connection.createStatement()
     val insertStatement = connection.prepareStatement(stationInsertQuery)
@@ -105,7 +105,7 @@ class DatabaseConnector extends AutoCloseable {
     commitStatement.execute("commit;")
   }
 
-  def writeFactions(factions: TraversableOnce[Faction]): Unit = {
+  def writeFactions(factions: IterableOnce[Faction]): Unit = {
     val beginStatement = connection.createStatement()
     val commitStatement = connection.createStatement()
     val truncateStatement = connection.createStatement()
@@ -132,7 +132,7 @@ class DatabaseConnector extends AutoCloseable {
     commitStatement.execute("commit;")
   }
 
-  def writeFactionPresences(factionPresences: TraversableOnce[FactionPresence]): Unit = {
+  def writeFactionPresences(factionPresences: IterableOnce[FactionPresence]): Unit = {
     val beginStatement = connection.createStatement()
     val commitStatement = connection.createStatement()
     val insertStatement = connection.prepareStatement(factionPresenceInsertQuery)
@@ -148,7 +148,7 @@ class DatabaseConnector extends AutoCloseable {
     commitStatement.execute("commit;")
   }
 
-  def writeStationEconomies(stationEconomies: TraversableOnce[StationEconomy]): Unit = {
+  def writeStationEconomies(stationEconomies: IterableOnce[StationEconomy]): Unit = {
     val beginStatement = connection.createStatement()
     val commitStatement = connection.createStatement()
     val insertStatement = connection.prepareStatement(stationEconomyInsertQuery)
@@ -166,12 +166,12 @@ class DatabaseConnector extends AutoCloseable {
 
   private def executeBatch[T](
     statement: PreparedStatement,
-    batch: TraversableOnce[T],
+    batch: IterableOnce[T],
     setBatch: (PreparedStatement, T) => Unit
   ): Unit = {
     var count: Int = 0
 
-    batch.foreach(
+    batch.iterator.foreach(
       item => {
         setBatch(statement, item)
         statement.addBatch()

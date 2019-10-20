@@ -1,7 +1,7 @@
 #!/bin/bash
 
 findjar() {
-	JARFILE="$(ls -1 target/scala-2.12/elite-etl-assembly-*.jar 2>/dev/null | sort -V | tail -n1)"
+	JARFILE="$(ls -1 target/scala-2.13/elite-etl-assembly-*.jar 2>/dev/null | sort -V | tail -n1)"
 }
 
 pushd . >/dev/null

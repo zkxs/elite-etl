@@ -6,17 +6,23 @@ lazy val root = (project in file(".")).
   settings(
     inThisBuild(
       List(
-        scalaVersion := "2.12.6"
+        scalaVersion := "2.13.1"
       )
     ),
     organization := "net.michaelripley",
     name := "elite-etl",
-    version := "0.1.0",
+    version := "0.1.1",
     resolvers ++= extraResolvers,
     libraryDependencies ++= testLibraries,
     libraryDependencies ++= dependencies,
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     mainClass in(Compile, run) := mainClassName,
     mainClass in(Compile, packageBin) := mainClassName,
-    mainClass in assembly := mainClassName
+    mainClass in assembly := mainClassName,
+    assemblyMergeStrategy in assembly := {
+      case "module-info.class" => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
   )
