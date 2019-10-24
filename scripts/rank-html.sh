@@ -47,7 +47,7 @@ echo -n '<!DOCTYPE html>
 					Finds pairs of systems that are suitable for major power rank grinding.
 				</p>
 				<p>
-					This page automatically updates once a day.
+					This page <i>should</i> automatically update once a day. If it doesn'"'"'t, you should <a href="mailto:webmaster@michaelripley.net">let me know</a>.
 				</p>
 				<h3>Columns</h3>
 				<p>
@@ -56,8 +56,8 @@ echo -n '<!DOCTYPE html>
 				</p>
 				<ul>
 					<li>system_name: name of the system</li> <!-- duh -->
-					<li>faction: major power aligned factions in Boom state / total faction</li>
-					<li>stations: number of stations in the system</li>
+					<li>faction: major power aligned factions / total factions in system</li>
+					<li>boom_stations: boom stations / total stations in system</li>
 					<li>any_large: does this system have any stations with large landing pads?</li>
 					<li>ls: light seconds to most distant station</li>
 					<li>distance: distance between A and B systems</li>
@@ -88,16 +88,19 @@ echo -n '				<h3>What systems are considered?</h3>
 				<p>Only systems that meet the following critera make it in to the results:</p>
 				<ul>
 					<li>
-						Systems A and B must be within 10 ly of each other.
-						10 ly is significant because it is the max distance data delivery missions will send you.
+						Systems A and B must be within [x] ly of each other.
+						[x] ly is significant because it is the max distance data delivery missions will send you.
 					</li>
 					<li>
-						No other system with dockable stations can be with 10 ly of A or B.
+						No other system with dockable stations can be with [x] ly of A or B.
 						This prevents delivery missions from sending you away from A or B.
 					</li>
-					<li>Systems must have major power aligned factions in Boom state. Boom factions generate lots of data delivery missions.</li>
 					<li>Systems must have at least one major power aligned faction.</li>
-					<li>Systems must not have planetary outposts. (Ain'"'"'t nobody got time for that!)</li>
+				</ul>
+				<h3>Notes</h3>
+				<ul>
+					<li>Booms generate lots of good data delivery missions.</li>
+					<li>Planetary outposts appear to have no effect, which is nice because ain'"'"'t nobody got time to land on those things.</li>
 				</ul>
 			</main>
 			<footer>
