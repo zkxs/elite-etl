@@ -11,7 +11,7 @@ lazy val root = (project in file(".")).
     ),
     organization := "net.michaelripley",
     name := "elite-etl",
-    version := "0.1.1",
+    version := "0.2.0",
     resolvers ++= extraResolvers,
     libraryDependencies ++= testLibraries,
     libraryDependencies ++= dependencies,
