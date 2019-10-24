@@ -10,7 +10,8 @@ case class System(
   y: Double,
   z: Double,
   @JsonProperty("minor_faction_presences") factionPresences: Iterable[FactionPresence],
-  @JsonProperty("primary_economy") economy: Economy
+  @JsonProperty("primary_economy") economy: Economy,
+  states: Array[State]
 ) {
 
   def distance(system: System): Double = {

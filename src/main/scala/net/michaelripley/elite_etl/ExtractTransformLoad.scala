@@ -1,7 +1,7 @@
 package net.michaelripley.elite_etl
 
-import net.michaelripley.elite_etl.db.DatabaseConnector
-import net.michaelripley.elite_etl.dto.enums.Economy
+import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, StateMapping, StationEconomy}
+import net.michaelripley.elite_etl.db.{DatabaseConnector, MockDatabaseConnectorImpl, PsqlDatabaseConnectorImpl}
 import net.michaelripley.elite_etl.dto.{Faction, Station}
 import net.michaelripley.elite_etl.eddb.EddbDownloader
 
@@ -21,12 +21,25 @@ object ExtractTransformLoad {
       factionSource
     )
 
-    val exitCode = if (allResources.forall(_.cached)) {
+    val argsSet = args.toSet
+    val force = argsSet.contains("force")
+    val dryRun = argsSet.contains("dryRun")
+
+    val exitCode = if (!force && allResources.forall(_.cached)) {
       println("all resources are up to date; nothing to do.")
       // return a different status code so that shell scripts can detect that nothing was done
       304
     } else {
-      val db = new DatabaseConnector()
+      if (force) {
+        println("ignoring etags and forcing update")
+      }
+
+      val db: DatabaseConnector = if (dryRun) {
+        println("dry run: not writing to database")
+        new MockDatabaseConnectorImpl()
+      } else {
+        new PsqlDatabaseConnectorImpl()
+      }
 
       // I purposely did not import System to avoid hiding java.lang.System
       val systems = objectMapper.readValue(systemSource.inputStream, classOf[Array[dto.System]])
@@ -42,7 +55,7 @@ object ExtractTransformLoad {
       println(s"wrote ${factions.length} factions to database")
 
       // faction/system mappings
-      val factionSystemMapping: Array[(Int, Int)] = systems
+      val factionSystemMapping: Array[FactionPresence] = systems
         .view
         .flatMap(system => system.factionPresences.map(faction => (system.id, faction.id)))
         .toArray
@@ -51,13 +64,29 @@ object ExtractTransformLoad {
       println(s"wrote ${factionSystemMapping.length} faction presences to database")
 
       // station/economy mappings
-      val stationEconomyMapping: Array[(Int, Economy)] = stations
+      val stationEconomyMapping: Array[StationEconomy] = stations
         .view
         .flatMap(station => station.economies.map(economy => (station.id, economy)))
         .toArray
         .distinct
       db.writeStationEconomies(stationEconomyMapping)
       println(s"wrote ${stationEconomyMapping.length} station economies to database")
+
+      val stationStateMapping: Array[StateMapping] = stations
+        .view
+        .flatMap(station => station.states.map(state => (station.id, state.name)))
+        .toArray
+        .distinct
+      db.writeStationStates(stationStateMapping)
+      println(s"wrote ${stationStateMapping.length} station states to database")
+
+      val systemStateMapping: Array[StateMapping] = systems
+        .view
+        .flatMap(system => system.states.map(state => (system.id, state.name)))
+        .toArray
+        .distinct
+      db.writeSystemStates(systemStateMapping)
+      println(s"wrote ${systemStateMapping.length} system states to database")
 
       0
     }

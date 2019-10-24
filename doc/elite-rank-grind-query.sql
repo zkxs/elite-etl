@@ -7,9 +7,9 @@ create temp table rank_grind_systems
     system_id integer not null,
     system_name character varying(64),
     coordinates geometry,
-    boom_aligned_factions integer not null,
     aligned_factions integer not null,
     total_factions integer not null,
+    good_boom_stations integer not null,
     good_stations integer not null,
     bad_stations integer not null,
     any_large boolean not null,
@@ -45,18 +45,19 @@ from (
             left join faction on faction_presence.faction_id = faction.faction_id
             where faction_allegiance = 'Federation' -- 'Federation' or 'Empire'
             and system.system_id = faction_presence.system_id
-            and faction_state = 'Boom' -- are there other states that generate data delivery?
-        ) as boom_aligned_factions,
-        (
-            select count(*) from faction_presence
-            left join faction on faction_presence.faction_id = faction.faction_id
-            where faction_allegiance = 'Federation' -- 'Federation' or 'Empire'
-            and system.system_id = faction_presence.system_id
         ) as aligned_factions,
         (
             select count(*) from faction_presence
             where system.system_id = faction_presence.system_id
         ) as total_factions,
+        (
+            select count(*) from station
+            left join station_state on station.station_id = station_state.station_id
+            where system.system_id = station.system_id
+            and has_docking
+            and not is_planetary
+            and station_state = 'Boom'
+        ) as good_boom_stations,
         (
             select count(*) from station
             where system.system_id = station.system_id
@@ -118,16 +119,16 @@ set second_nearest=(
 select
     -- a_system_id,
     a_system_name,
-    a_boom_factions || ', ' || a_factions || '/' || a_total_factions as a_factions,
-    a_stations,
+    a_factions || '/' || a_total_factions as a_factions,
+    a_boom_stations || '/' || a_stations as a_boom_stations,
     -- a_nearest,
     to_char(a_second_nearest, '99999999999.9') || ' ly' as a_second_nearest,
     case when a_any_large then 'yes' else 'no' end as a_any_large,
     a_ls || ' ls' as a_ls, 
     -- b_system_id,
     b_system_name,
-    b_boom_factions || ', ' || b_factions || '/' || b_total_factions as b_factions,
-    b_stations,
+    b_factions || '/' || b_total_factions as b_factions,
+    b_boom_stations || '/' || b_stations as b_boom_stations,
     -- b_nearest,
     to_char(b_second_nearest, '99999999999.9') || ' ly' as b_second_nearest,
     case when b_any_large then 'yes' else 'no' end as b_any_large,
@@ -137,9 +138,9 @@ from (
     select
         a.system_id             as a_system_id,
         a.system_name           as a_system_name,
-        a.boom_aligned_factions as a_boom_factions,
         a.aligned_factions      as a_factions,
         a.total_factions        as a_total_factions,
+        a.good_boom_stations    as a_boom_stations,
         a.good_stations         as a_stations,
         a.nearest               as a_nearest,
         a.second_nearest        as a_second_nearest,
@@ -147,9 +148,9 @@ from (
         a.max_arrival_distance  as a_ls,
         b.system_id             as b_system_id,
         b.system_name           as b_system_name,
-        b.boom_aligned_factions as b_boom_factions,
         b.aligned_factions      as b_factions,
         b.total_factions        as b_total_factions,
+        b.good_boom_stations    as b_boom_stations,
         b.good_stations         as b_stations,
         b.nearest               as b_nearest,
         b.second_nearest        as b_second_nearest,

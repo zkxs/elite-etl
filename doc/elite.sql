@@ -29,10 +29,13 @@ ALTER TYPE public.major_power
 
 -- Type: state
 create type state as enum (
+    'Blight',
     'Boom',
-    'Bust',e 
+    'Bust',
+    'Civil Liberty',
     'Civil Unrest',
     'Civil War',
+    'Damaged',
     'Election',
     'Expansion',
     'Famine',
@@ -40,7 +43,9 @@ create type state as enum (
     'Lockdown',
     'None',
     'Outbreak',
+    'Pirate Attack',
     'Retreat',
+    'Under Repairs',
     'War'
 );
 ALTER TYPE public.state
@@ -106,14 +111,13 @@ CREATE TABLE public.station
 (
     station_id integer NOT NULL,
     station_name character varying(64) COLLATE pg_catalog."default",
-    station_state state,
     arrival_distance integer,
     system_id integer,
     max_landing_pad_size landing_pad_size,
     has_docking boolean,
     is_planetary boolean,
     CONSTRAINT station_pkey PRIMARY KEY (station_id),
-    CONSTRAINT system_id FOREIGN KEY (system_id)
+    CONSTRAINT station_system_id FOREIGN KEY (system_id)
         REFERENCES public.system (system_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -125,14 +129,9 @@ TABLESPACE pg_default;
 ALTER TABLE public.station
     OWNER to elite;
 
-CREATE INDEX arrival_distance
+CREATE INDEX station_arrival_distance
     ON public.station USING btree
     (arrival_distance)
-    TABLESPACE pg_default;
-
-CREATE INDEX station_state
-    ON public.station USING btree
-    (station_state)
     TABLESPACE pg_default;
 
 CREATE INDEX station_system_id
@@ -147,7 +146,6 @@ CREATE TABLE public.faction
     faction_id integer NOT NULL,
     faction_name character varying(128) COLLATE pg_catalog."default",
     faction_allegiance major_power,
-    faction_state state,
     CONSTRAINT faction_pkey PRIMARY KEY (faction_id)
 )
 WITH (
@@ -162,11 +160,6 @@ CREATE INDEX faction_allegiance
     (faction_allegiance)
     TABLESPACE pg_default;
 
-CREATE INDEX faction_state
-    ON public.faction USING btree
-    (faction_state)
-    TABLESPACE pg_default;
-
 
 -- Table: public.faction_presence
 CREATE TABLE public.faction_presence
@@ -174,11 +167,11 @@ CREATE TABLE public.faction_presence
     faction_id integer NOT NULL,
     system_id integer NOT NULL,
     CONSTRAINT faction_presence_pkey PRIMARY KEY (faction_id, system_id),
-    CONSTRAINT faction_id FOREIGN KEY (faction_id)
+    CONSTRAINT faction_presence_faction_id FOREIGN KEY (faction_id)
         REFERENCES public.faction (faction_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT system_id FOREIGN KEY (system_id)
+    CONSTRAINT faction_presence_system_id FOREIGN KEY (system_id)
         REFERENCES public.system (system_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -207,7 +200,7 @@ CREATE TABLE public.station_economy
     station_id integer NOT NULL,
     station_economy economy NOT NULL,
     CONSTRAINT station_economy_pkey PRIMARY KEY (station_id, station_economy),
-    CONSTRAINT station_id FOREIGN KEY (station_id)
+    CONSTRAINT station_economy_station_id FOREIGN KEY (station_id)
         REFERENCES public.station (station_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -219,13 +212,70 @@ TABLESPACE pg_default;
 ALTER TABLE public.station_economy
     OWNER to elite;
 
-CREATE INDEX station_id
+CREATE INDEX station_economy_station_id
     ON public.station_economy USING btree
     (station_id)
     TABLESPACE pg_default;
 
-CREATE INDEX station_economy_idx
+CREATE INDEX station_economy_station_economy
     ON public.station_economy USING btree
     (station_economy)
     TABLESPACE pg_default;
 
+
+-- Table: public.station_state
+CREATE TABLE public.station_state
+(
+    station_id integer NOT NULL,
+    station_state state NOT NULL,
+    CONSTRAINT station_state_pkey PRIMARY KEY (station_id, station_state),
+    CONSTRAINT station_state_station_id FOREIGN KEY (station_id)
+        REFERENCES public.station (station_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public.station_state
+    OWNER to elite;
+
+CREATE INDEX station_state_station_id
+    ON public.station_state USING btree
+    (station_id)
+    TABLESPACE pg_default;
+
+CREATE INDEX station_state_station_state
+    ON public.station_state USING btree
+    (station_state)
+    TABLESPACE pg_default;
+
+
+-- Table: public.system_state
+CREATE TABLE public.system_state
+(
+    system_id integer NOT NULL,
+    system_state state NOT NULL,
+    CONSTRAINT system_state_pkey PRIMARY KEY (system_id, system_state),
+    CONSTRAINT station_state_system_id FOREIGN KEY (system_id)
+        REFERENCES public.system (system_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public.system_state
+    OWNER to elite;
+
+CREATE INDEX system_state_system_id
+    ON public.system_state USING btree
+    (system_id)
+    TABLESPACE pg_default;
+
+CREATE INDEX system_state_system_state
+    ON public.system_state USING btree
+    (system_state)
+    TABLESPACE pg_default;

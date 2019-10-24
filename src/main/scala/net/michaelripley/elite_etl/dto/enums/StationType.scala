@@ -1,5 +1,7 @@
 package net.michaelripley.elite_etl.dto.enums
 
+import java.util.NoSuchElementException
+
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer}
 
@@ -7,7 +9,7 @@ case class StationType(name: String)
 
 object StationType {
 
-  private val stateMap: Map[String, StationType] = {
+  private val typeMap: Map[String, StationType] = {
 
     // list of all possible station types
     val stationTypes = List(
@@ -27,7 +29,10 @@ object StationType {
       "Planetary Port",
       "Unknown Planetary",
       "Planetary Engineer Base",
-      "Megaship"
+      "Megaship",
+      "Non-Dockable Orbital",
+      "Unknown Dockable",
+      "Civilian Megaship"
     )
 
     // build map
@@ -36,10 +41,14 @@ object StationType {
       .toMap
   }
 
-  val values: Iterable[StationType] = stateMap.values
+  val values: Iterable[StationType] = typeMap.values
 
   def apply(name: String): StationType = {
-    stateMap(name)
+    try {
+      typeMap(name)
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException(name);
+    }
   }
 
   val deserializer: JsonDeserializer[StationType] = (parser: JsonParser, _: DeserializationContext) => {

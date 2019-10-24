@@ -7,26 +7,25 @@ case class LandingPadSize(name: String)
 
 object LandingPadSize {
 
-  private val stateMap: Map[String, LandingPadSize] = {
+  private val padSizeMap: Map[String, LandingPadSize] = {
 
     // list of all landing pad sizes
-    val padSizes = List(
-      "None",
-      "S",
-      "M",
-      "L"
+    val padSizes = Map(
+      "" -> "None",
+      "None" -> "None",
+      "S" -> "S",
+      "M" -> "M",
+      "L" -> "L"
     )
 
     // build map
-    padSizes
-      .map(s => (s, new LandingPadSize(s)))
-      .toMap
+    padSizes.map{case (k, v) => (k, new LandingPadSize(v))}
   }
 
-  val values: Iterable[LandingPadSize] = stateMap.values
+  val values: Iterable[LandingPadSize] = padSizeMap.values
 
   def apply(name: String): LandingPadSize = {
-    stateMap(name)
+    padSizeMap(name)
   }
 
   val deserializer: JsonDeserializer[LandingPadSize] = (parser: JsonParser, _: DeserializationContext) => {

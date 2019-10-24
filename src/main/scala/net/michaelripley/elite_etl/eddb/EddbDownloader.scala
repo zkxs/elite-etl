@@ -2,16 +2,16 @@ package net.michaelripley.elite_etl.eddb
 
 import java.io._
 import java.net.{HttpURLConnection, URL}
-import java.nio.file.{CopyOption, Files, Paths, StandardCopyOption}
+import java.nio.file.{Files, Paths, StandardCopyOption}
 import java.util.Properties
 import java.util.zip.GZIPInputStream
 
 import scala.io.Source
 
 object EddbDownloader {
-  val systems = Resource("systems_populated.json", "https://eddb.io/archive/v5/systems_populated.json")
-  val stations = Resource("stations.json", "https://eddb.io/archive/v5/stations.json")
-  val factions = Resource("factions.json", "https://eddb.io/archive/v5/factions.json")
+  val systems = Resource("systems_populated.json", "https://eddb.io/archive/v6/systems_populated.json")
+  val stations = Resource("stations.json", "https://eddb.io/archive/v6/stations.json")
+  val factions = Resource("factions.json", "https://eddb.io/archive/v6/factions.json")
 
   private val etagFilename = "etags.properties"
 

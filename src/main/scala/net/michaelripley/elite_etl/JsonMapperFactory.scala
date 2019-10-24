@@ -17,7 +17,7 @@ object JsonMapperFactory {
     objectMapper.configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, false)
 
     val module = new SimpleModule()
-    module.addDeserializer(classOf[State], State.deserializer)
+    module.addDeserializer(classOf[StateName], StateName.deserializer)
     module.addDeserializer(classOf[Allegiance], Allegiance.deserializer)
     module.addDeserializer(classOf[Economy], Economy.deserializer)
     module.addDeserializer(classOf[StationType], StationType.deserializer)
