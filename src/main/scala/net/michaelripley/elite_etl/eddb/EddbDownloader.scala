@@ -38,15 +38,12 @@ case class Resource(filename: String, uri: String) {
 
   def get(): ResourceData = {
     import EddbDownloader.etags
-    val etag = etags.getProperty(filename)
+    val etag = Option(etags.getProperty(filename))
 
     val request = new URL(uri).openConnection().asInstanceOf[HttpURLConnection]
     request.setRequestProperty("Accept", "application/json")
     request.setRequestProperty("Accept-Encoding", "gzip")
-    if (etag != null) {
-      request.setRequestProperty("If-None-Match", etag)
-    }
-
+    etag.foreach(request.setRequestProperty("If-None-Match", _))
     request.connect()
 
     val code = request.getResponseCode
@@ -55,9 +52,13 @@ case class Resource(filename: String, uri: String) {
         println(s"skipped download for cached file $filename")
         ResourceData(new FileInputStream(filename), cached = true)
       case 200 => // handle new data
-        val etag = request.getHeaderField("ETag")
-          .replace("-gzip", "")
-        etags.setProperty(filename, etag)
+        val etag = Option(request.getHeaderField("ETag"))
+          .map(_.replace("-gzip", ""))
+
+        etag match {
+          case Some(value) => etags.setProperty(filename, value)
+          case None => etags.remove(filename)
+        }
         EddbDownloader.writeProps() // update stored etags
 
         val encoding = request.getHeaderField("Content-Encoding")
@@ -68,7 +69,7 @@ case class Resource(filename: String, uri: String) {
 
         val file = Paths.get(filename)
         val bytes = Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING)
-        println(s"downloaded ${bytes / 1024}kB to $filename")
+        println(s"downloaded ${bytes / 1024}kiB to $filename")
         ResourceData(Files.newInputStream(file), cached = false)
       case _ => // handle unknown response codes
         val stream = {
