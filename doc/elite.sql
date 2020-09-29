@@ -21,6 +21,7 @@ create type major_power as enum (
     'Empire',
     'Federation',
     'Independent',
+    'None',
     'Pilots Federation'
 );
 ALTER TYPE public.major_power
@@ -36,15 +37,20 @@ create type state as enum (
     'Civil Unrest',
     'Civil War',
     'Damaged',
+    'Drought',
     'Election',
     'Expansion',
     'Famine',
+    'Infrastructure Failure',
     'Investment',
     'Lockdown',
+    'Natural Disaster',
     'None',
     'Outbreak',
     'Pirate Attack',
+    'Public Holiday',
     'Retreat',
+    'Terrorist Attack',
     'Under Repairs',
     'War'
 );
@@ -63,6 +69,7 @@ create type economy as enum (
     'Military',
     'None',
     'Prison',
+    'Private Enterprise',
     'Refinery',
     'Repair',
     'Rescue',

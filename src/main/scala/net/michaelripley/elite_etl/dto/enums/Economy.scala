@@ -1,5 +1,7 @@
 package net.michaelripley.elite_etl.dto.enums
 
+import java.util.NoSuchElementException
+
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer}
 
@@ -20,6 +22,7 @@ object Economy {
       "Military",
       "None",
       "Prison",
+      "Private Enterprise",
       "Refinery",
       "Repair",
       "Rescue",
@@ -37,7 +40,11 @@ object Economy {
   val values: Iterable[Economy] = economyMap.values
 
   def apply(name: String): Economy = {
-    economyMap(name)
+    try {
+      economyMap(name)
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException(name)
+    }
   }
 
   val deserializer: JsonDeserializer[Economy] = (parser: JsonParser, _: DeserializationContext) => {

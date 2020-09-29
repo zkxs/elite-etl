@@ -2,6 +2,7 @@ package net.michaelripley.elite_etl
 
 import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, StateMapping, StationEconomy}
 import net.michaelripley.elite_etl.db.{DatabaseConnector, MockDatabaseConnectorImpl, PsqlDatabaseConnectorImpl}
+import net.michaelripley.elite_etl.dto.enums.StationType
 import net.michaelripley.elite_etl.dto.{Faction, Station}
 import net.michaelripley.elite_etl.eddb.EddbDownloader
 
@@ -46,7 +47,10 @@ object ExtractTransformLoad {
       db.writeSystems(systems)
       println(s"wrote ${systems.length} systems to database")
 
+      val fleetCarrierStationType = StationType("Fleet Carrier")
       val stations = objectMapper.readValue(stationSource.inputStream, classOf[Array[Station]])
+        .filterNot(_.stationType == fleetCarrierStationType) // remove fleet carriers as they can exist in unpopulated systems
+        .filterNot(_.stationType == null) // remove unknown station types as they could be fleet carriers
       db.writeStations(stations)
       println(s"wrote ${stations.length} stations to database")
 

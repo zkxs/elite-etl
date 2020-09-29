@@ -1,5 +1,7 @@
 package net.michaelripley.elite_etl.dto.enums
 
+import java.util.NoSuchElementException
+
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer}
 
@@ -26,6 +28,7 @@ object Allegiance {
     2 -> new Allegiance(2, "Empire"),
     3 -> new Allegiance(3, "Federation"),
     4 -> new Allegiance(4, "Independent"),
+    5 -> new Allegiance(5, "None"),
     7 -> new Allegiance(7, "Pilots Federation")
   )
 
@@ -34,7 +37,11 @@ object Allegiance {
   val values: Iterable[Allegiance] = idMap.values
 
   def apply(id: Int): Allegiance = {
-    idMap(id)
+    try {
+      idMap(id)
+    } catch {
+      case _: NoSuchElementException => throw new NoSuchElementException(id.toString)
+    }
   }
 
   def apply(name: String): Allegiance = {

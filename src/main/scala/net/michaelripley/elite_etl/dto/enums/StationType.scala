@@ -32,7 +32,8 @@ object StationType {
       "Megaship",
       "Non-Dockable Orbital",
       "Unknown Dockable",
-      "Civilian Megaship"
+      "Civilian Megaship",
+      "Fleet Carrier"
     )
 
     // build map
@@ -47,7 +48,7 @@ object StationType {
     try {
       typeMap(name)
     } catch {
-      case _: NoSuchElementException => throw new NoSuchElementException(name);
+      case _: NoSuchElementException => throw new NoSuchElementException(name)
     }
   }
 

@@ -20,15 +20,20 @@ object StateName {
       "Civil Unrest",
       "Civil War",
       "Damaged",
+      "Drought",
       "Election",
       "Expansion",
       "Famine",
+      "Infrastructure Failure",
       "Investment",
       "Lockdown",
+      "Natural Disaster",
       "None",
       "Outbreak",
       "Pirate Attack",
+      "Public Holiday",
       "Retreat",
+      "Terrorist Attack",
       "Under Repairs",
       "War"
     )
@@ -45,7 +50,7 @@ object StateName {
     try {
       stateMap(name)
     } catch {
-      case _: NoSuchElementException => throw new NoSuchElementException(name);
+      case _: NoSuchElementException => throw new NoSuchElementException(name)
     }
   }
 
