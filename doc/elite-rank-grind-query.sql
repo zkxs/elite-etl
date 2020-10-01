@@ -39,7 +39,9 @@ insert into rank_grind_systems
 select *
 from (
     select
-        *,
+        system_id,
+        system_name,
+        coordinates,
         (
             select count(*) from faction_presence
             left join faction on faction_presence.faction_id = faction.faction_id
