@@ -1,7 +1,7 @@
 package net.michaelripley.elite_etl.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.michaelripley.elite_etl.dto.enums.Economy
+import net.michaelripley.elite_etl.dto.enums.{Economy, Security}
 
 case class System(
   id: Int,
@@ -11,7 +11,8 @@ case class System(
   z: Double,
   @JsonProperty("minor_faction_presences") factionPresences: Iterable[FactionPresence],
   @JsonProperty("primary_economy") economy: Economy,
-  states: Array[State]
+  states: Array[State],
+  @JsonProperty("security_id") security: Security
 ) {
 
   def distance(system: System): Double = {

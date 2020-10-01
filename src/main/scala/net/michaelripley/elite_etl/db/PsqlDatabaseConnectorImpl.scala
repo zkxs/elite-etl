@@ -11,14 +11,15 @@ private object PsqlDatabaseConnectorImpl {
 
   private val systemInsertQuery =
     """insert into system
-      | (system_id, system_name, coordinates)
-      | values (?, ?, ST_MakePoint(?, ?, ?));
+      | (system_id, system_name, coordinates, security)
+      | values (?, ?, ST_MakePoint(?, ?, ?), ?::security);
       |""".stripMargin
 
   private val stationInsertQuery =
     """insert into station
-      | (station_id, station_name, arrival_distance, system_id, max_landing_pad_size, has_docking, is_planetary)
-      | values (?, ?, ?, ?, ?::landing_pad_size, ?, ?);
+      | (station_id, station_name, arrival_distance, system_id, max_landing_pad_size, has_docking, is_planetary,
+      | has_blackmarket, has_market, has_refuel, has_repair, has_rearm, has_outfitting, has_shipyard, has_commodities)
+      | values (?, ?, ?, ?, ?::landing_pad_size, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       |""".stripMargin
 
   private val factionInsertQuery =
@@ -77,11 +78,20 @@ class PsqlDatabaseConnectorImpl extends DatabaseConnector {
     truncateStatement.execute("truncate system cascade;") // cascades to station and faction_presence
     executeBatch(
       insertStatement, systems, (statement, system: System) => {
+
+        // security can sometimes be null
+        val security = if (system.security == null) {
+          null
+        } else {
+          system.security.name
+        }
+
         statement.setInt(1, system.id)
         statement.setString(2, system.name)
         statement.setDouble(3, system.x)
         statement.setDouble(4, system.y)
         statement.setDouble(5, system.z)
+        statement.setString(6, security)
       }
     )
     commitStatement.execute("commit;")
@@ -108,6 +118,14 @@ class PsqlDatabaseConnectorImpl extends DatabaseConnector {
         statement.setString(5, maxLandingPadSize)
         statement.setBoolean(6, station.hasDocking)
         statement.setBoolean(7, station.isPlanetary)
+        statement.setBoolean(8, station.hasBlackmarket)
+        statement.setBoolean(9, station.hasMarket)
+        statement.setBoolean(10, station.hasRefuel)
+        statement.setBoolean(11, station.hasRepair)
+        statement.setBoolean(12, station.hasRearm)
+        statement.setBoolean(13, station.hasOutfitting)
+        statement.setBoolean(14, station.hasShipyard)
+        statement.setBoolean(15, station.hasCommodities)
       }
     )
     beginStatement.execute("begin;")

@@ -22,6 +22,7 @@ object JsonMapperFactory {
     module.addDeserializer(classOf[Economy], Economy.deserializer)
     module.addDeserializer(classOf[StationType], StationType.deserializer)
     module.addDeserializer(classOf[LandingPadSize],LandingPadSize.deserializer)
+    module.addDeserializer(classOf[Security], Security.deserializer)
     objectMapper.registerModule(module)
 
     // return the ObjectMapper

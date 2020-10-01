@@ -91,6 +91,15 @@ create type landing_pad_size as enum (
 ALTER TYPE public.landing_pad_size
     OWNER TO elite;
 
+-- Type: security
+create type security as enum (
+    'Anarchy',
+    'Low',
+    'Medium',
+    'High'
+);
+ALTER TYPE public.security
+    OWNER TO elite;
 
 -- Table: public.system
 CREATE TABLE public.system
@@ -98,6 +107,7 @@ CREATE TABLE public.system
     system_id integer NOT NULL,
     system_name character varying(64) COLLATE pg_catalog."default",
     coordinates geometry,
+    security security,
     CONSTRAINT system_pkey PRIMARY KEY (system_id)
 )
 WITH (
@@ -123,6 +133,14 @@ CREATE TABLE public.station
     max_landing_pad_size landing_pad_size,
     has_docking boolean,
     is_planetary boolean,
+    has_blackmarket boolean,
+    has_market boolean,
+    has_refuel boolean,
+    has_repair boolean,
+    has_rearm boolean,
+    has_outfitting boolean,
+    has_shipyard boolean,
+    has_commodities boolean,
     CONSTRAINT station_pkey PRIMARY KEY (station_id),
     CONSTRAINT station_system_id FOREIGN KEY (system_id)
         REFERENCES public.system (system_id) MATCH SIMPLE
