@@ -108,6 +108,7 @@ CREATE TABLE public.system
     system_name character varying(64) COLLATE pg_catalog."default",
     coordinates geometry,
     security security,
+    population bigint,
     CONSTRAINT system_pkey PRIMARY KEY (system_id)
 )
 WITH (

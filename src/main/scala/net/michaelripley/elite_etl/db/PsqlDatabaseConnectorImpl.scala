@@ -11,8 +11,8 @@ private object PsqlDatabaseConnectorImpl {
 
   private val systemInsertQuery =
     """insert into system
-      | (system_id, system_name, coordinates, security)
-      | values (?, ?, ST_MakePoint(?, ?, ?), ?::security);
+      | (system_id, system_name, coordinates, security, population)
+      | values (?, ?, ST_MakePoint(?, ?, ?), ?::security, ?);
       |""".stripMargin
 
   private val stationInsertQuery =
@@ -92,6 +92,7 @@ class PsqlDatabaseConnectorImpl extends DatabaseConnector {
         statement.setDouble(4, system.y)
         statement.setDouble(5, system.z)
         statement.setString(6, security)
+        statement.setLong(7, system.population)
       }
     )
     commitStatement.execute("commit;")

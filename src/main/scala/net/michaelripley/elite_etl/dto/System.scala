@@ -12,7 +12,8 @@ case class System(
   @JsonProperty("minor_faction_presences") factionPresences: Iterable[FactionPresence],
   @JsonProperty("primary_economy") economy: Economy,
   states: Array[State],
-  @JsonProperty("security_id") security: Security
+  @JsonProperty("security_id") security: Security,
+  population: Long
 ) {
 
   def distance(system: System): Double = {
