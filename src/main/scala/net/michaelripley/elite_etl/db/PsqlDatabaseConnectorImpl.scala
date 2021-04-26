@@ -24,8 +24,8 @@ private object PsqlDatabaseConnectorImpl {
 
   private val factionInsertQuery =
     """insert into faction
-      | (faction_id, faction_name, faction_allegiance)
-      | values (?, ?, ?::major_power);
+      | (faction_id, faction_name, faction_allegiance, faction_government)
+      | values (?, ?, ?::major_power, ?::government);
       |""".stripMargin
 
   private val factionPresenceInsertQuery =
@@ -151,9 +151,16 @@ class PsqlDatabaseConnectorImpl extends DatabaseConnector {
           faction.allegiance.name
         }
 
+        val government = if (faction.government == null) {
+          null
+        } else {
+          faction.government.name
+        }
+
         statement.setInt(1, faction.id)
         statement.setString(2, faction.name)
         statement.setString(3, allegiance)
+        statement.setString(4, government)
       }
     )
     commitStatement.execute("commit;")

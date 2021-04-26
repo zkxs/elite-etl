@@ -1,3 +1,6 @@
+-- reset
+drop database elite;
+
 -- Database: elite
 CREATE DATABASE elite
     WITH 
@@ -78,6 +81,27 @@ create type economy as enum (
     'Tourism'
 );
 ALTER TYPE public.economy
+    OWNER TO elite;
+
+
+-- Type: economy
+create type government as enum (
+    'Anarchy',
+    'Communism',
+    'Confederacy',
+    'Corporate',
+    'Cooperative',
+    'Democracy',
+    'Dictatorship',
+    'Feudal',
+    'Patronage',
+    'Prison Colony',
+    'Theocracy',
+    'None',
+    'Engineer',
+    'Prison'
+);
+ALTER TYPE public.government
     OWNER TO elite;
 
 
@@ -172,6 +196,7 @@ CREATE TABLE public.faction
     faction_id integer NOT NULL,
     faction_name character varying(128) COLLATE pg_catalog."default",
     faction_allegiance major_power,
+    faction_government government,
     CONSTRAINT faction_pkey PRIMARY KEY (faction_id)
 )
 WITH (
