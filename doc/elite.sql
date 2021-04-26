@@ -211,6 +211,11 @@ CREATE INDEX faction_allegiance
     (faction_allegiance)
     TABLESPACE pg_default;
 
+CREATE INDEX faction_government
+    ON public.faction USING btree
+    (faction_government)
+    TABLESPACE pg_default;
+
 
 -- Table: public.faction_presence
 CREATE TABLE public.faction_presence
