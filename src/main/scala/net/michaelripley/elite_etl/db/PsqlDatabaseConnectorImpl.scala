@@ -3,8 +3,8 @@ package net.michaelripley.elite_etl.db
 import java.io.FileInputStream
 import java.sql.{Connection, DriverManager, PreparedStatement}
 import java.util.Properties
-
-import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, StateMapping, StationEconomy}
+import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, FactionPresenceState, StateMapping, StationEconomy}
+import net.michaelripley.elite_etl.dto.enums.StateName
 import net.michaelripley.elite_etl.dto.{Faction, Station, System}
 
 private object PsqlDatabaseConnectorImpl {
@@ -32,6 +32,12 @@ private object PsqlDatabaseConnectorImpl {
     """insert into faction_presence
       | (system_id, faction_id)
       | values (?, ?);
+      |""".stripMargin
+
+  private val factionPresenceStateInsertQuery =
+    """insert into faction_presence_state
+      | (system_id, faction_id, faction_presence_state)
+      | values (?, ?, ?::state);
       |""".stripMargin
 
   private val stationEconomyInsertQuery =
@@ -176,6 +182,22 @@ class PsqlDatabaseConnectorImpl extends DatabaseConnector {
       insertStatement, factionPresences, (statement, factionPresence: FactionPresence) => {
         statement.setInt(1, factionPresence._1) // first item is system id
         statement.setInt(2, factionPresence._2) // second item is minor faction id
+      }
+    )
+    commitStatement.execute("commit;")
+  }
+
+  override def writeFactionPresenceStates(factionPresenceStates: IterableOnce[(Int, Int, StateName)]): Unit = {
+    val beginStatement = connection.createStatement()
+    val commitStatement = connection.createStatement()
+    val insertStatement = connection.prepareStatement(factionPresenceStateInsertQuery)
+
+    beginStatement.execute("begin;")
+    executeBatch(
+      insertStatement, factionPresenceStates, (statement, factionPresence: FactionPresenceState) => {
+        statement.setInt(1, factionPresence._1) // first item is system id
+        statement.setInt(2, factionPresence._2) // second item is minor faction id
+        statement.setString(3, factionPresence._3.name) // second item is minor faction state
       }
     )
     commitStatement.execute("commit;")

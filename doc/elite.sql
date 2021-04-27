@@ -250,6 +250,25 @@ CREATE INDEX system_id
     TABLESPACE pg_default;
 
 
+-- Table: public.faction_presence_state
+CREATE TABLE public.faction_presence_state
+(
+    faction_id integer NOT NULL,
+    system_id integer NOT NULL,
+    faction_presence_state state,
+    CONSTRAINT faction_presence_state_pkey PRIMARY KEY (faction_id, system_id, faction_presence_state),
+    CONSTRAINT faction_presence_state_fkey FOREIGN KEY (faction_id, system_id)
+        REFERENCES public.faction_presence (faction_id, system_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+ALTER TABLE public.faction_presence_state
+    OWNER to elite;
+
 -- Table: public.station_economy
 CREATE TABLE public.station_economy
 (

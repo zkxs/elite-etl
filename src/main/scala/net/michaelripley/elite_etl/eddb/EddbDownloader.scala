@@ -36,54 +36,60 @@ object EddbDownloader {
 
 case class Resource(filename: String, uri: String) {
 
-  def get(): ResourceData = {
-    import EddbDownloader.etags
-    val etag = Option(etags.getProperty(filename))
+  def get(skipDownload: Boolean = false): ResourceData = {
+    if (skipDownload) {
+      println(s"skipped download for file $filename due to skipDownload flag")
+      ResourceData(new FileInputStream(filename), cached = true)
+    } else {
 
-    val request = new URL(uri).openConnection().asInstanceOf[HttpURLConnection]
-    request.setRequestProperty("Accept", "application/json")
-    request.setRequestProperty("Accept-Encoding", "gzip")
-    etag.foreach(request.setRequestProperty("If-None-Match", _))
-    request.connect()
+      import EddbDownloader.etags
+      val etag = Option(etags.getProperty(filename))
 
-    val code = request.getResponseCode
-    code match {
-      case 304 => // handle not modified
-        println(s"skipped download for cached file $filename")
-        ResourceData(new FileInputStream(filename), cached = true)
-      case 200 => // handle new data
-        val etag = Option(request.getHeaderField("ETag"))
-          .map(_.replace("-gzip", ""))
+      val request = new URL(uri).openConnection().asInstanceOf[HttpURLConnection]
+      request.setRequestProperty("Accept", "application/json")
+      request.setRequestProperty("Accept-Encoding", "gzip")
+      etag.foreach(request.setRequestProperty("If-None-Match", _))
+      request.connect()
 
-        etag match {
-          case Some(value) => etags.setProperty(filename, value)
-          case None => etags.remove(filename)
-        }
-        EddbDownloader.writeProps() // update stored etags
+      val code = request.getResponseCode
+      code match {
+        case 304 => // handle not modified
+          println(s"skipped download for cached file $filename")
+          ResourceData(new FileInputStream(filename), cached = true)
+        case 200 => // handle new data
+          val etag = Option(request.getHeaderField("ETag"))
+            .map(_.replace("-gzip", ""))
 
-        val encoding = request.getHeaderField("Content-Encoding")
-        val stream = encoding match {
-          case "gzip" => new GZIPInputStream(request.getInputStream)
-          case _ => request.getInputStream
-        }
-
-        val file = Paths.get(filename)
-        val bytes = Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING)
-        println(s"downloaded ${bytes / 1024}kiB to $filename")
-        ResourceData(Files.newInputStream(file), cached = false)
-      case _ => // handle unknown response codes
-        val stream = {
-          val inputStream = request.getInputStream
-          if (inputStream != null) {
-            Some(inputStream)
-          } else {
-            Option(request.getErrorStream)
+          etag match {
+            case Some(value) => etags.setProperty(filename, value)
+            case None => etags.remove(filename)
           }
-        }
+          EddbDownloader.writeProps() // update stored etags
 
-        val string = stream.fold("")(s => Source.fromInputStream(s).mkString)
+          val encoding = request.getHeaderField("Content-Encoding")
+          val stream = encoding match {
+            case "gzip" => new GZIPInputStream(request.getInputStream)
+            case _ => request.getInputStream
+          }
 
-        throw new IOException(s"$code: ${request.getResponseMessage} $string")
+          val file = Paths.get(filename)
+          val bytes = Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING)
+          println(s"downloaded ${bytes / 1024}kiB to $filename")
+          ResourceData(Files.newInputStream(file), cached = false)
+        case _ => // handle unknown response codes
+          val stream = {
+            val inputStream = request.getInputStream
+            if (inputStream != null) {
+              Some(inputStream)
+            } else {
+              Option(request.getErrorStream)
+            }
+          }
+
+          val string = stream.fold("")(s => Source.fromInputStream(s).mkString)
+
+          throw new IOException(s"$code: ${request.getResponseMessage} $string")
+      }
     }
   }
 }

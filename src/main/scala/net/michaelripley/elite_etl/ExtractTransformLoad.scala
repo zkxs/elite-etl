@@ -1,6 +1,6 @@
 package net.michaelripley.elite_etl
 
-import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, StateMapping, StationEconomy}
+import net.michaelripley.elite_etl.db.DatabaseConnector.{FactionPresence, FactionPresenceState, StateMapping, StationEconomy}
 import net.michaelripley.elite_etl.db.{DatabaseConnector, MockDatabaseConnectorImpl, PsqlDatabaseConnectorImpl}
 import net.michaelripley.elite_etl.dto.enums.StationType
 import net.michaelripley.elite_etl.dto.{Faction, Station}
@@ -10,21 +10,22 @@ object ExtractTransformLoad {
   def main(args: Array[String]): Unit = {
     val startTime = System.nanoTime()
 
+    val argsSet = args.toSet
+    val force = argsSet.contains("force")
+    val dryRun = argsSet.contains("dryRun")
+    val skipDownload = argsSet.contains("skipDownload")
+
     val objectMapper = JsonMapperFactory.getInstance
 
-    val systemSource = EddbDownloader.systems.get()
-    val stationSource = EddbDownloader.stations.get()
-    val factionSource = EddbDownloader.factions.get()
+    val systemSource = EddbDownloader.systems.get(skipDownload)
+    val stationSource = EddbDownloader.stations.get(skipDownload)
+    val factionSource = EddbDownloader.factions.get(skipDownload)
 
     val allResources = Seq(
       systemSource,
       stationSource,
       factionSource
     )
-
-    val argsSet = args.toSet
-    val force = argsSet.contains("force")
-    val dryRun = argsSet.contains("dryRun")
 
     val exitCode = if (!force && allResources.forall(_.cached)) {
       println("all resources are up to date; nothing to do.")
@@ -66,6 +67,17 @@ object ExtractTransformLoad {
         .distinct
       db.writeFactionPresences(factionSystemMapping)
       println(s"wrote ${factionSystemMapping.length} faction presences to database")
+
+      val factionStateMapping: Array[FactionPresenceState] = systems
+        .view
+        .flatMap(
+          system => system.factionPresences.flatMap(
+            factionPresence => factionPresence.states.map(
+              state => (system.id, factionPresence.id, state.name))))
+        .toArray
+        .distinct
+      db.writeFactionPresenceStates(factionStateMapping)
+      println(s"wrote ${factionStateMapping.length} faction states to database")
 
       // station/economy mappings
       val stationEconomyMapping: Array[StationEconomy] = stations
