@@ -33,7 +33,8 @@ object StationType {
       "Non-Dockable Orbital",
       "Unknown Dockable",
       "Civilian Megaship",
-      "Fleet Carrier"
+      "Fleet Carrier",
+      "Odyssey Settlement",
     )
 
     // build map
