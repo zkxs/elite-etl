@@ -82,7 +82,7 @@ cat ../doc/elite-rank-grind-query.sql |\
 	sed 's/&nbsp;//g' |\
 	sed 's/^/\t\t\t\t/' >> rank-grind.html
 
-DATE="$(date -u +%Y-%m-%dT%I:%M:%SZ)"
+DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 echo -n '				<h3>What systems are considered?</h3>
 				<p>Only systems that meet the following critera make it in to the results:</p>
